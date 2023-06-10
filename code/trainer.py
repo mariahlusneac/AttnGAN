@@ -33,7 +33,7 @@ class condGANTrainer(object):
             mkdir_p(self.model_dir)
             mkdir_p(self.image_dir)
 
-        torch.cuda.set_device(cfg.GPU_ID)
+        # torch.cuda.set_device(cfg.GPU_ID)
         cudnn.benchmark = True
 
         self.batch_size = cfg.TRAIN.BATCH_SIZE
@@ -242,7 +242,8 @@ class condGANTrainer(object):
                 ######################################################
                 # (1) Prepare training data and Compute text embeddings
                 ######################################################
-                data = data_iter.next()
+                # data = data_iter.next()
+                data = next(data_iter)
                 imgs, captions, cap_lens, class_ids, keys = prepare_data(data)
 
                 hidden = text_encoder.init_hidden(batch_size)
@@ -274,7 +275,7 @@ class condGANTrainer(object):
                     errD.backward()
                     optimizersD[i].step()
                     errD_total += errD
-                    D_logs += 'errD%d: %.2f ' % (i, errD.data[0])
+                    # D_logs += 'errD%d: %.2f ' % (i, errD.data[0])
 
                 #######################################################
                 # (4) Update G network: maximize log(D(G(z)))
@@ -291,7 +292,7 @@ class condGANTrainer(object):
                                    words_embs, sent_emb, match_labels, cap_lens, class_ids)
                 kl_loss = KL_loss(mu, logvar)
                 errG_total += kl_loss
-                G_logs += 'kl_loss: %.2f ' % kl_loss.data[0]
+                # G_logs += 'kl_loss: %.2f ' % kl_loss.data[0]
                 # backward and update parameters
                 errG_total.backward()
                 optimizerG.step()
@@ -315,11 +316,11 @@ class condGANTrainer(object):
                     #                       epoch, name='current')
             end_t = time.time()
 
-            print('''[%d/%d][%d]
-                  Loss_D: %.2f Loss_G: %.2f Time: %.2fs'''
-                  % (epoch, self.max_epoch, self.num_batches,
-                     errD_total.data[0], errG_total.data[0],
-                     end_t - start_t))
+            # print('''[%d/%d][%d]
+            #       Loss_D: %.2f Loss_G: %.2f Time: %.2fs'''
+            #       % (epoch, self.max_epoch, self.num_batches,
+            #          errD_total.data[0], errG_total.data[0],
+            #          end_t - start_t))
 
             if epoch % cfg.TRAIN.SNAPSHOT_INTERVAL == 0:  # and epoch != 0:
                 self.save_model(netG, avg_param_G, netsD, epoch)
@@ -357,7 +358,7 @@ class condGANTrainer(object):
             else:
                 netG = G_NET()
             netG.apply(weights_init)
-            netG.cuda()
+            # netG.cuda()
             netG.eval()
             #
             text_encoder = RNN_ENCODER(self.n_words, nhidden=cfg.TEXT.EMBEDDING_DIM)
@@ -365,13 +366,13 @@ class condGANTrainer(object):
                 torch.load(cfg.TRAIN.NET_E, map_location=lambda storage, loc: storage)
             text_encoder.load_state_dict(state_dict)
             print('Load text encoder from:', cfg.TRAIN.NET_E)
-            text_encoder = text_encoder.cuda()
+            # text_encoder = text_encoder.cuda()
             text_encoder.eval()
 
             batch_size = self.batch_size
             nz = cfg.GAN.Z_DIM
             noise = Variable(torch.FloatTensor(batch_size, nz), volatile=True)
-            noise = noise.cuda()
+            # noise = noise.cuda()
 
             model_dir = cfg.TRAIN.NET_G
             state_dict = \
@@ -440,7 +441,7 @@ class condGANTrainer(object):
                 torch.load(cfg.TRAIN.NET_E, map_location=lambda storage, loc: storage)
             text_encoder.load_state_dict(state_dict)
             print('Load text encoder from:', cfg.TRAIN.NET_E)
-            text_encoder = text_encoder.cuda()
+            # text_encoder = text_encoder.cuda()
             text_encoder.eval()
 
             # the path to save generated images
@@ -454,7 +455,7 @@ class condGANTrainer(object):
                 torch.load(model_dir, map_location=lambda storage, loc: storage)
             netG.load_state_dict(state_dict)
             print('Load G from: ', model_dir)
-            netG.cuda()
+            # netG.cuda()
             netG.eval()
             for key in data_dic:
                 save_dir = '%s/%s' % (s_tmp, key)
@@ -466,11 +467,11 @@ class condGANTrainer(object):
                 captions = Variable(torch.from_numpy(captions), volatile=True)
                 cap_lens = Variable(torch.from_numpy(cap_lens), volatile=True)
 
-                captions = captions.cuda()
-                cap_lens = cap_lens.cuda()
+                # captions = captions.cuda()
+                # cap_lens = cap_lens.cuda()
                 for i in range(1):  # 16
                     noise = Variable(torch.FloatTensor(batch_size, nz), volatile=True)
-                    noise = noise.cuda()
+                    # noise = noise.cuda()
                     #######################################################
                     # (1) Extract text embeddings
                     ######################################################
@@ -497,21 +498,22 @@ class condGANTrainer(object):
                             # print('im', im.shape)
                             im = Image.fromarray(im)
                             fullpath = '%s_g%d.png' % (save_name, k)
+                            print(fullpath)
                             im.save(fullpath)
 
-                        for k in range(len(attention_maps)):
-                            if len(fake_imgs) > 1:
-                                im = fake_imgs[k + 1].detach().cpu()
-                            else:
-                                im = fake_imgs[0].detach().cpu()
-                            attn_maps = attention_maps[k]
-                            att_sze = attn_maps.size(2)
-                            img_set, sentences = \
-                                build_super_images2(im[j].unsqueeze(0),
-                                                    captions[j].unsqueeze(0),
-                                                    [cap_lens_np[j]], self.ixtoword,
-                                                    [attn_maps[j]], att_sze)
-                            if img_set is not None:
-                                im = Image.fromarray(img_set)
-                                fullpath = '%s_a%d.png' % (save_name, k)
-                                im.save(fullpath)
+                        # for k in range(len(attention_maps)):
+                        #     if len(fake_imgs) > 1:
+                        #         im = fake_imgs[k + 1].detach().cpu()
+                        #     else:
+                        #         im = fake_imgs[0].detach().cpu()
+                        #     attn_maps = attention_maps[k]
+                        #     att_sze = attn_maps.size(2)
+                        #     img_set, sentences = \
+                        #         build_super_images2(im[j].unsqueeze(0),
+                        #                             captions[j].unsqueeze(0),
+                        #                             [cap_lens_np[j]], self.ixtoword,
+                        #                             [attn_maps[j]], att_sze)
+                        #     if img_set is not None:
+                        #         im = Image.fromarray(img_set)
+                        #         fullpath = '%s_a%d.png' % (save_name, k)
+                        #         im.save(fullpath)
