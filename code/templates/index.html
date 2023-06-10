@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Caption Input</title>
+</head>
+<body>
+    <h1>Enter a Caption</h1>
+    <form action="/save_captions" method="POST">
+        <input type="text" name="caption" required>
+        <input type="submit" value="Save Caption">
+    </form>
+
+    {% if image_path %}
+        <h2>Generated Image</h2>
+        <img src="{{ image_path }}" alt="Generated Image">
+    {% endif %}
+</body>
+</html>
