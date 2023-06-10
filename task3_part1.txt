@@ -1,0 +1,30 @@
+// Personal note: I wrote the explanation from the perspective of the author of the paper + implementation and the way
+I am talking is on behalf on the whole team (as usually this is the use case when discussing with a client).
+
+Introduction
+AttnGAN is a neural network that creates images based on written descriptions. The key components are based on
+ attention mechanisms, which are mechanisms that enrich the link between words from the descriptions and their
+ corresponding patches of image.
+
+The novelty in our approach
+The idea of generating an image based on textual descriptions is not new. However, the past approaches are missing
+details of the generated objects and give results that are poorer in quality. We address these shortcomings with our
+new approach called AttnGAN. We’ll firstly explain what a GAN is: it’s a piece of software called a neural network composed of two sub-neural networks: a Generator and a Discriminator. Think about a neural network as an agent who has a job to complete. The Generator agent tries to generate for our task images as qualitative and plausible as possible based on the description received; and the Discriminator agent tries to detect the images produced by the Generator that are not that qualitative or plausible with respect to the description. Then, the Generator tries to improve itself to make the Discriminator say that its images are good enough. Then the Discriminator tries even harder to detect the bad images. And so on and so forth, until a desired quality of images is reached. The Generator and Discriminator work against each other to produce sequentially better results. This happens at training time, which is the process where the network continuously improves itself in order to reach a good version for when we will want to make predictions with it.
+
+AttnGAN is a type of GAN which has as modules containing attention mechanisms in both the Generator and the Discriminator.
+
+AttnGAN generates high-quality images paying close attention to the important words in the description and using them
+to enhance different parts of the image. This attention-driven process allows AttnGAN to create highly detailed pictures
+with fine-grained elements. To train itself and improve its performance, the network uses a module that compares the
+generated image with the original text description and computes a measure of how well they match. By doing this, AttnGAN
+can learn from its mistakes and create better pictures in the future.
+
+In comparison to other similar programs, AttnGAN stands out because it can automatically choose specific conditions at
+the word level to generate different aspects of the image. This capability has not been demonstrated before and allows
+AttnGAN to produce high-quality images with intricate details based on natural language descriptions. In testing,
+AttnGAN has proven to outperform other advanced models, achieving significant improvements in the quality of the
+generated images.
+
+All the operations that are happening in the Generator and Discriminator are based on many mathematical operations and
+have complex logic behind. We took our time to research previous related work and develop our new approach in order
+to obtain better results in image quality and fidelity to the textual instructions.

@@ -1,0 +1,34 @@
+1. Is it better to deploy the model on a server and all devices consume it using an API? Or to deploy it on each
+device? How? & 3. The specs of the hosting machine, Cloud, etc.
+
+If we think about the resources, we can take into consideration deploying the model on all devices only if we know that
+all of them dispose of necessary resources for storing the model and running predictions. Otherwise, it would be better
+to deploy the model on a server. Most probably the case is the latter one.
+If we know that the model will be updated frequently, again, it would be better to deploy it on a server to be able to
+manage the updates more easily.
+In terms of latency, it would be better to deploy the model on each device, as server deployment requires communication
+between devices and the server over a network and this can result in higher latency.
+If the data that reaches the model is sensitive and private, it might be better to deploy the model on each device in
+order to not expose user’s data externally. However, with strong security standards, this might be overcome and we
+could deploy the model on a server.
+2. How to scale our solution?
+If we need to scale our solution to a lot more users, the only way would be if we deploy the model on a server, because
+there we can easily manage the resources and scale them as needed, in one single place. If we did this on users’
+devices, we have to do it on each device individually, which is harder to mantain.
+Coming back to question 1, where to deploy the model might depend on the use case, but generally it’s better to deploy
+it on a server and let users consume it by calling an API.
+
+
+4. Tools and frameworks that could simplify the deployment process.
+
+We can use Amazon SageMaker, TensorFlow Serving, PyTorch Serve, FastAPI, Flask to deploy a model on a server.
+
+
+5. Suppose we got more data batches post-production for model tuning. How could we avoid biasing the new data in favor
+of the original one?
+
+We could perform the training again from scratch with all the data, old and new. This might be quite costly
+and inefficient.
+Another solution can be to train the model (which is already trained with the old data) only with the new data, but
+make the learning rate smaller, in order for the weights to not change so much/so fast.
+Or, related to the previous solution, we can train the already-trained model on a mix of old and new data (50%-50%).
