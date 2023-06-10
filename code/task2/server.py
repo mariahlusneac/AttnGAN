@@ -18,7 +18,7 @@ def save_captions():
     os.rmdir(image_path)
     os.system("python ../main.py --cfg cfg/eval_coco.yml --gpu -1")
 
-    return send_file(os.path.join(image_path, '/0_s_0_g2.png'), mimetype='image/png')
+    return render_template('index.html', image_path=os.path.join(image_path, '/0_s_0_g2.png'))
 
 if __name__ == '_main_':
     app.run(port=80)
